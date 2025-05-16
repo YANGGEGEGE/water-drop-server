@@ -16,7 +16,7 @@ export class OSSService {
     const config = {
       accessKeyId: ACCESS_KEY,
       accessKeySecret: ACCESS_KEY_SECRET,
-      bucket: 'water-drop-assets',
+      bucket: 'yangailiyunoss',
       dir: 'images/',
     };
 

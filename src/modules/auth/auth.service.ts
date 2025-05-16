@@ -21,8 +21,10 @@ export class AuthService {
   // 发送短信验证码
   async sendCodeMsg(tel: string): Promise<Result> {
     const user = await this.userService.findByTel(tel);
+    console.log('user11111', user);
     if (user) {
       const diffTime = dayjs().diff(dayjs(user.codeCreateTimeAt));
+      console.log('🚀 ~ AuthService ~ sendCodeMsg ~ diffTime:', diffTime);
       if (diffTime < 60 * 1000) {
         return {
           code: CODE_NOT_EXPIRE,
@@ -46,7 +48,7 @@ export class AuthService {
       if (sendRes.body.code !== 'OK') {
         return {
           code: CODE_SEND_ERROR,
-          message: sendRes.body.message,
+          message: sendRes.body.message || '短信发送失败，请稍后再试',
         };
       }
       if (user) {
@@ -59,7 +61,7 @@ export class AuthService {
         }
         return {
           code: UPDATE_ERROR,
-          message: '更新 code 失败',
+          message: '更新验证码失败',
         };
       }
       const result = await this.userService.create({
@@ -70,16 +72,19 @@ export class AuthService {
       if (result) {
         return {
           code: SUCCESS,
-          message: '获取验证码成功',
+          message: '获取验证码成功（新用户）',
         };
       }
       return {
         code: UPDATE_ERROR,
-        message: '新建账号失败',
+        message: '创建用户或保存验证码失败',
       };
     } catch (error) {
-      // 如有需要，请打印 error
-      Util.assertAsString(error.message);
+      console.error('Error in sendCodeMsg:', error);
+      return {
+        code: CODE_SEND_ERROR,
+        message: error.message || '发送验证码时发生内部错误，请稍后再试',
+      };
     }
   }
 }
